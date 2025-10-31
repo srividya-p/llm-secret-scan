@@ -41,6 +41,8 @@ def main():
         for change in commit["changes"]:
             suspects = prefilter_suspects(change["added_lines"])
             if suspects:
+                for s in suspects:
+                    s["file_path"] = change["file"]
                 all_suspects.extend([(s, change["file"]) for s in suspects])
 
         if all_suspects:
