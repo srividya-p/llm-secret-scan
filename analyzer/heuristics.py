@@ -1,12 +1,10 @@
 import re
 import math
 
-PATTERNS = {
-    "AWS Access Key": r"AKIA[0-9A-Z]{16}",
-    "Private Key": r"-----BEGIN (?:RSA|DSA|EC|PGP) PRIVATE KEY-----",
-    "API Token": r"api[_-]?key\s*=\s*['\"]?[A-Za-z0-9_\-]{16,}['\"]?",
-    "Password": r"pass(word)?\s*=\s*['\"].+['\"]",
-}
+from . import config
+
+PATTERNS = {k: re.compile(v) for k, v in config.patterns.items()}
+ENTROPY_THRESHOLD = config.config["heuristics"]["entropy_threshold"]
 
 
 def shannon_entropy(s):
@@ -26,7 +24,7 @@ def prefilter_suspects(lines):
 
         is_suspect = (
             any(re.search(regex, line) for regex in PATTERNS.values())
-            or shannon_entropy(line) > 4.5
+            or shannon_entropy(line) > ENTROPY_THRESHOLD
         )
 
         if is_suspect:

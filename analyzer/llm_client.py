@@ -1,48 +1,29 @@
 import json
 
-import google.generativeai as genai
 from dotenv import load_dotenv
+import google.generativeai as genai
+
+from . import config
 
 load_dotenv()
 
 genai.configure()
 
-PROMPT_TEMPLATE = """
-You are a security auditor reviewing Git diffs.
-Determine if the following snippet likely leaks secrets or sensitive data.
-Return JSON with the following keys:
-- type: Must be one of ["SECRET_LEAK", "INFORMATION_DISCLOSURE", "NO_LEAK"]
-- secret_type: Identify the specific type of secret (e.g. "AWS Key", "OAuth Token", "SSH Key", "API Key", "Database Password", etc.)
-- category: Must be one of ["CLOUD_CREDENTIALS", "AUTH_TOKENS", "ENCRYPTION_KEYS", "DATABASE_SECRETS", "SERVICE_CREDENTIALS", "OTHER"]
-- severity: Must be one of ["CRITICAL", "HIGH", "MEDIUM", "LOW"] based on the potential impact
-- rationale: Your brief explanation for why this type of secret is sensitive
-- confidence: A number between 0 and 1
 
-Commit message: {commit_msg}
-File: {file_path}
-Snippet: {diff_snippet}
-
-Consider the context of the file path and commit message when determining the secret type.
-"""
+TYPES = config.config["report"]["types"]
+CATEGORIES = config.config["report"]["categories"]
+SEVERITIES = config.config["report"]["severities"]
+PROMPT_TEMPLATE = config.config["prompt_template"]
+MODEL = config.config["llm"]["model"]
+MAX_ATTEMPTS = config.config["llm"]["max_attempts"]
 
 
 def validate_result(result):
-    valid_types = ["SECRET_LEAK", "INFORMATION_DISCLOSURE", "NO_LEAK"]
-    valid_categories = [
-        "CLOUD_CREDENTIALS",
-        "AUTH_TOKENS",
-        "ENCRYPTION_KEYS",
-        "DATABASE_SECRETS",
-        "SERVICE_CREDENTIALS",
-        "OTHER",
-    ]
-    valid_severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
-
     required_fields = {
-        "type": valid_types,
+        "type": TYPES,
         "secret_type": None,  # Can be any string
-        "category": valid_categories,
-        "severity": valid_severities,
+        "category": CATEGORIES,
+        "severity": SEVERITIES,
         "rationale": None,  # Can be any string
         "confidence": lambda x: isinstance(x, (int, float)) and 0 <= x <= 1,
     }
@@ -66,9 +47,9 @@ def analyze_with_llm(diff_snippet, commit_msg, file_path):
         diff_snippet=diff_snippet, commit_msg=commit_msg, file_path=file_path
     )
 
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel(MODEL)
 
-    for attempt in range(2):
+    for attempt in range(MAX_ATTEMPTS):
         response = model.generate_content(prompt)
         text = response.text.strip()
 
