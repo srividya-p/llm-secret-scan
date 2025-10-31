@@ -1,0 +1,43 @@
+llm:
+  model: "gemini-2.5-flash"
+  max_attempts: 2
+
+heuristics:
+  entropy_threshold: 4.5
+
+report:
+  types:
+    - "SECRET_LEAK"
+    - "INFORMATION_DISCLOSURE"
+    - "NO_LEAK"
+  
+  categories:
+    - "CLOUD_CREDENTIALS"
+    - "AUTH_TOKENS"
+    - "ENCRYPTION_KEYS"
+    - "DATABASE_SECRETS"
+    - "SERVICE_CREDENTIALS"
+    - "OTHER"
+  
+  severities:
+    - "CRITICAL"
+    - "HIGH"
+    - "MEDIUM"
+    - "LOW"
+
+prompt_template: |
+  You are a security auditor reviewing Git diffs.
+  Determine if the following snippet likely leaks secrets or sensitive data.
+  Return JSON with the following keys:
+  - type: Must be one of ["SECRET_LEAK", "INFORMATION_DISCLOSURE", "NO_LEAK"]
+  - secret_type: Identify the specific type of secret (e.g. "AWS Key", "OAuth Token", "SSH Key", "API Key", "Database Password", etc.)
+  - category: Must be one of ["CLOUD_CREDENTIALS", "AUTH_TOKENS", "ENCRYPTION_KEYS", "DATABASE_SECRETS", "SERVICE_CREDENTIALS", "OTHER"]
+  - severity: Must be one of ["CRITICAL", "HIGH", "MEDIUM", "LOW"] based on the potential impact
+  - rationale: Your brief explanation for why this type of secret is sensitive
+  - confidence: A number between 0 and 1
+
+  Commit message: {commit_msg}
+  File: {file_path}
+  Snippet: {diff_snippet}
+
+  Consider the context of the file path and commit message when determining the secret type.
