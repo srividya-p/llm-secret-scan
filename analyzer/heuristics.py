@@ -18,11 +18,19 @@ def shannon_entropy(s):
 
 def prefilter_suspects(lines):
     suspects = []
+    seen_snippets = set()
+
     for i, line in enumerate(lines):
-        for name, regex in PATTERNS.items():
-            if re.search(regex, line):
-                suspects.append({"snippet": line, "type": name, "line": i + 1})
-                break
-        if shannon_entropy(line) > 4.5:
-            suspects.append({"snippet": line, "type": "High Entropy", "line": i + 1})
+        if line in seen_snippets:
+            continue
+
+        is_suspect = (
+            any(re.search(regex, line) for regex in PATTERNS.values())
+            or shannon_entropy(line) > 4.5
+        )
+
+        if is_suspect:
+            suspects.append({"snippet": line.rstrip(), "line": i + 1})
+            seen_snippets.add(line)
+
     return suspects
