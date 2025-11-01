@@ -78,12 +78,12 @@ Sample report entry (from `report.json`):
 
 - Main entrypoint: `scan.py`
 - Modules (in `analyzer/`):
-	- `git_utils.py` — clone/read repo and collect recent commits + diffs
-	- `heuristics.py` — prefilter suspicious lines using `patterns.json` and entropy threshold from `config.yaml`
-	- `llm_client.py` — sends a prompt to an LLM (via `google.generativeai`) and validates the returned JSON
-	- `report.py` — writes results to a JSON file
+	- `git_utils.py`: clone/read repo and collect recent commits + diffs
+	- `heuristics.py`: prefilter suspicious lines using `patterns.json` and entropy threshold from `config.yaml`
+	- `llm_client.py`: sends a prompt to an LLM (via `google.generativeai`) and validates the returned JSON
+	- `report.py`: writes results to a JSON file
 - Configuration: `config.yaml` (model, heuristics thresholds and prompt template)
-- Regex patterns: `patterns.json`
+- Regex patterns: `patterns.json` (Extracted from: https://gitlab.com/gitlab-org/security-products/secret-detection/secret-detection-rules/-/tree/main/rules/mit)
 
 
 ## Troubleshooting
