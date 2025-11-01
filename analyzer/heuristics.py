@@ -18,7 +18,8 @@ def prefilter_suspects(lines):
     suspects = []
     seen_snippets = set()
 
-    for i, line in enumerate(lines):
+    for line_info in lines:
+        line = line_info["content"]
         if line in seen_snippets:
             continue
 
@@ -28,7 +29,9 @@ def prefilter_suspects(lines):
         )
 
         if is_suspect:
-            suspects.append({"snippet": line.rstrip(), "line": i + 1})
+            suspects.append(
+                {"snippet": line.rstrip(), "line": line_info["line_number"]}
+            )
             seen_snippets.add(line)
 
     return suspects
