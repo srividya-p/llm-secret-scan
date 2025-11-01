@@ -2,7 +2,7 @@
 
 A small CLI tool that scans the latest commits of a Git repository for likely secret leaks using a combination of heuristics (regexes + entropy) and a Large Language Model verifier. The scanner does the following steps:
 - clones or reads a Git repository (local path or remote URL)
-- extracts added lines from recent commits
+- extracts added lines and numbers from recent commits
 - pre-filters suspicious lines using regex patterns and Shannon entropy
 - sends suspicious snippets to an LLM prompt to classify whether they contain secrets
 - writes a JSON report of findings
@@ -72,6 +72,11 @@ Sample report entry (from `report.json`):
     "confidence": 1.0
     },
 ```
+
+## Sample repos for testing
+- https://github.com/GitGuardian/sample_secrets
+- https://github.com/BonJarber/SecretsTest
+- https://github.com/Chessiie/Sample-Secret-Keys
 
 
 ## Description of files
