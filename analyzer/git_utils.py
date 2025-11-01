@@ -18,7 +18,7 @@ def extract_added_lines(diff_text):
 
         body_start = h.end()
         body_end = matches[i + 1].start() if i + 1 < len(matches) else len(diff_text)
-        hunk_lines = diff_text[body_start:body_end].splitlines()
+        hunk_lines = diff_text[body_start:body_end].lstrip("\n").splitlines()
 
         current_new_line = new_start
         for line in hunk_lines:
